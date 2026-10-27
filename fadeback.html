@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f0c0e">
+<title>Fadeback · Client feedback for barbers</title>
+<meta name="description" content="A branded QR survey for self-employed barbers. Clients scan, rate the cut in 60 seconds, you watch the answers land live.">
+<link rel="icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0c0e; --card: #1a1518; --ink: #fbf5f8; --mute: #b7a6af; --line: #2f2629;
+    --accent: #ff9ad0; --accentInk: #1a0a13;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --body: 'DM Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); overflow-x: hidden; }
+  a { color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  nav { display: flex; align-items: center; gap: 14px; height: 68px; }
+  .brand { font: 800 22px/1 var(--display); letter-spacing: -.03em; display: flex; align-items: center; gap: 9px; text-decoration: none; }
+  .pole { width: 14px; height: 28px; border-radius: 8px; background: repeating-linear-gradient(135deg, #fff 0 5px, #e2264d 5px 10px, #fff 10px 15px, #2a54d6 15px 20px); background-size: 100% 40px; animation: pole 1.4s linear infinite; box-shadow: inset 0 0 0 2px #fff3; }
+  @keyframes pole { to { background-position: 0 40px; } }
+  @media (prefers-reduced-motion: reduce) { .pole { animation: none; } }
+  .grow { flex: 1; }
+  .btn { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 46px; padding: 0 20px; border-radius: 99px; background: var(--accent); color: var(--accentInk); font: 800 15px/1 var(--display); white-space: nowrap; transition: transform .15s; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+  .btn:active { transform: scale(.97); }
+  .btn[disabled] { opacity: .4; pointer-events: none; }
+
+  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; padding: 40px 0 70px; }
+  @media (max-width: 880px) { .hero { grid-template-columns: 1fr; padding-top: 16px; } }
+  .eyebrow { font: 700 12px/1 var(--body); letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+  .hero h1 { font: 800 clamp(44px, 7.4vw, 92px)/.95 var(--display); letter-spacing: -.045em; margin: 14px 0 18px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--mute); font-size: 18px; max-width: 520px; margin: 0 0 26px; }
+  .cta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 34px; max-width: 560px; }
+  .steps3 div { border-top: 1.5px solid var(--line); padding-top: 10px; font-size: 14px; color: var(--mute); }
+  .steps3 b { display: block; color: var(--ink); font: 800 16px/1.2 var(--display); }
+
+  .phone { width: min(330px, 86vw); aspect-ratio: 9 / 18.5; margin: 0 auto; border-radius: 44px; padding: 10px; background: #050405; box-shadow: 0 0 0 1.5px #3a3236, 0 40px 90px -30px rgba(255, 120, 190, .45); position: relative; }
+  .phone iframe { width: 100%; height: 100%; border: 0; border-radius: 34px; background: #140c12; }
+  .phone::before { content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 84px; height: 22px; border-radius: 20px; background: #050405; z-index: 2; }
+
+  section.build { padding: 30px 0 80px; border-top: 1px solid var(--line); }
+  .build h2 { font: 800 clamp(30px, 5vw, 48px)/1 var(--display); letter-spacing: -.03em; margin: 26px 0 8px; }
+  .build .lead { color: var(--mute); margin: 0 0 26px; }
+  .bgrid { display: grid; grid-template-columns: 1fr 360px; gap: 34px; align-items: start; }
+  @media (max-width: 960px) { .bgrid { grid-template-columns: 1fr; } .sticky { position: static !important; } }
+  .sticky { position: sticky; top: 16px; }
+  fieldset { border: 1px solid var(--line); border-radius: 20px; padding: 18px; margin: 0 0 14px; background: var(--card); min-width: 0; }
+  legend { font: 800 15px/1 var(--display); padding: 0 8px; }
+  label.f { display: block; font-size: 13px; font-weight: 700; color: var(--mute); margin: 12px 0 6px; }
+  label.f:first-of-type { margin-top: 2px; }
+  input[type=text], input[type=email], input[type=url], textarea, select {
+    width: 100%; font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 12px; outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { min-height: 84px; resize: vertical; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .two { grid-template-columns: 1fr; } }
+  .slugrow { display: flex; align-items: center; border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg); overflow: hidden; }
+  .slugrow span { padding: 0 0 0 12px; color: var(--mute); font-size: 13px; white-space: nowrap; }
+  .slugrow input { border: 0; padding-left: 2px; }
+  .note { font-size: 13px; color: var(--mute); margin-top: 6px; }
+  .note.bad { color: #ff8a8a; } .note.ok { color: #3ecf8e; }
+
+  .vibes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  @media (max-width: 560px) { .vibes { grid-template-columns: repeat(2, 1fr); } }
+  .vibe { all: unset; cursor: pointer; border-radius: 14px; border: 2px solid var(--line); padding: 10px; display: grid; gap: 8px; font-size: 13px; font-weight: 700; }
+  .vibe.on { border-color: var(--accent); }
+  .sw { display: flex; height: 34px; border-radius: 8px; overflow: hidden; }
+  .sw i { flex: 1; }
+  .colors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .colors label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--mute); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 8px; background: var(--bg); cursor: pointer; }
+  .colors input { width: 30px; height: 26px; border: 0; padding: 0; background: none; cursor: pointer; }
+  .drop { display: flex; align-items: center; gap: 14px; border: 1.5px dashed var(--line); border-radius: 14px; padding: 14px; cursor: pointer; background: var(--bg); }
+  .drop.over { border-color: var(--accent); }
+  .drop img { width: 90px; height: 64px; object-fit: contain; border-radius: 8px; background: repeating-conic-gradient(#ffffff10 0 25%, transparent 0 50%) 0 0/14px 14px; }
+  .toggle { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14px; cursor: pointer; }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--accent); }
+
+  .who { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; color: var(--mute); font-size: 14px; }
+  .signin { border: 1px solid var(--line); border-radius: 20px; padding: 22px; background: var(--card); max-width: 460px; }
+  .signin form { display: grid; gap: 8px; margin-top: 12px; }
+  .err { color: #ff8a8a; font-size: 14px; min-height: 1.2em; margin-top: 8px; }
+
+  .done { border: 1.5px solid var(--accent); border-radius: 22px; padding: 20px; background: var(--card); margin-top: 14px; }
+  .done h3 { font: 800 22px/1.1 var(--display); margin: 0 0 6px; }
+  .qrbox { display: grid; grid-template-columns: 170px 1fr; gap: 18px; align-items: center; margin-top: 12px; }
+  @media (max-width: 520px) { .qrbox { grid-template-columns: 1fr; } }
+  .qrbox canvas { width: 170px; height: 170px; background: #fff; border-radius: 14px; padding: 10px; }
+  .linkbox { font-size: 14px; word-break: break-all; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 6px 0 10px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row .btn { height: 40px; font-size: 14px; padding: 0 14px; }
+  .stepper { display: flex; gap: 6px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  .stepper button { all: unset; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--mute); padding: 6px 10px; border: 1px solid var(--line); border-radius: 99px; }
+  .stepper button.on { color: var(--accentInk); background: var(--accent); border-color: var(--accent); }
+  footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--mute); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="fadeback.html"><span class="pole" aria-hidden="true"></span>Fadeback</a>
+    <span class="grow"></span>
+    <a class="btn ghost" href="dash/">Dashboard</a>
+    <a class="btn" href="#build">Make yours</a>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Feedback for self-employed barbers</div>
+      <h1>Every cut <em>talks.</em><br>Now you can listen.</h1>
+      <p>A QR survey in your colours and logo. Clients scan at the chair, rate the cut in 60 seconds, and you watch the answers land live, with a copy in your inbox.</p>
+      <div class="cta"><a class="btn" href="#build">Build my survey, free</a><a class="btn ghost" href="s/?b=sweetthebarber" target="_blank" rel="noopener">See a live one</a></div>
+      <div class="steps3">
+        <div><b>1 · Brand it</b>Logo, vibe, colours</div>
+        <div><b>2 · Print the QR</b>Mirror, station, card</div>
+        <div><b>3 · Watch it live</b>Dashboard + email</div>
+      </div>
+    </div>
+    <div class="phone"><iframe src="s/?b=sweetthebarber" title="Example survey" loading="lazy"></iframe></div>
+  </div>
+</div>
+
+<section class="build" id="build">
+  <div class="wrap">
+    <h2>Build your survey</h2>
+    <p class="lead">Sign in so only you can see your answers. Everything updates in the phone preview as you go.</p>
+    <div id="buildApp"></div>
+  </div>
+</section>
+
+<footer><div class="wrap">Fadeback · made in Montréal · answers are stored privately and only visible to the barber who owns the survey.</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script src="core.js"></script>
+<script>
+(function () {
+  const { db, auth, esc, VIBES, FONTS, slugify, blankBarber, loadBarber, surveyUrl, dashUrl } = FB;
+  const $b = document.getElementById('buildApp');
+  const qs = new URLSearchParams(location.search);
+  let me = null, b = null, existing = false, frame = null, frameReady = false, previewStep = 0, slugTimer = null, slugOk = true;
+
+  // ---------- sign-in ----------
+  function signin() {
+    $b.innerHTML = `<div class="signin"><b style="font:800 20px var(--display)">Sign in to start</b>
+      <p style="color:var(--mute);margin:6px 0 14px">Your answers stay private to this account.</p>
+      <button class="btn" id="g" style="width:100%">Continue with Google</button>
+      <form id="ef"><div class="note" style="text-align:center;margin:8px 0 2px">or with email</div>
+        <input type="email" id="em" placeholder="Email" autocomplete="email" required>
+        <input type="password" id="pw" placeholder="Password (6+ characters)" autocomplete="current-password" required minlength="6"
+          style="width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px">
+        <button class="btn ghost">Sign in / create account</button></form>
+      <div class="err" id="err"></div></div>`;
+    document.getElementById('g').onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(showErr);
+    document.getElementById('ef').onsubmit = async (e) => {
+      e.preventDefault();
+      const em = document.getElementById('em').value.trim(), pw = document.getElementById('pw').value;
+      try { await auth.signInWithEmailAndPassword(em, pw); }
+      catch (x) {
+        if (/user-not-found|invalid-credential|invalid-login/.test(x.code)) { try { await auth.createUserWithEmailAndPassword(em, pw); } catch (y) { showErr(y); } }
+        else showErr(x);
+      }
+    };
+  }
+  function showErr(e) { const el = document.getElementById('err'); if (el) el.textContent = (e && e.message || String(e)).replace('Firebase: ', ''); }
+
+  // ---------- builder ----------
+  async function start() {
+    const edit = (qs.get('edit') || '').toLowerCase();
+    b = null; existing = false;
+    if (edit) {
+      const cur = await loadBarber(edit);
+      if (cur && cur._live) {
+        if (cur.ownerUid === me.uid || me.email === FB.ADMIN || (cur.team || []).includes(me.email)) { b = cur; existing = true; }
+      } else if (cur && cur._preset && me.email === FB.ADMIN) { b = cur; }
+    }
+    if (!b) {
+      // Reopen the survey this account already owns, if any.
+      const mine = await db.collection('barbers').where('ownerUid', '==', me.uid).limit(1).get().catch(() => null);
+      if (mine && !mine.empty) { const d = mine.docs[0]; b = { ...blankBarber(d.id), ...d.data(), slug: d.id }; existing = true; }
+    }
+    if (!b) b = blankBarber('');
+    b.colors = { ...(VIBES[b.vibe] || VIBES.sweet), ...(b.colors || {}) };
+    form();
+  }
+
+  function form() {
+    const vibeBtns = Object.entries(VIBES).map(([k, v]) => `<button type="button" class="vibe${b.vibe === k ? ' on' : ''}" data-vibe="${k}">
+      <span class="sw"><i style="background:${v.bg}"></i><i style="background:${v.card}"></i><i style="background:${v.accent}"></i><i style="background:${v.ink}"></i></span>${v.label}</button>`).join('');
+    $b.innerHTML = `<div class="who">Signed in as <b style="color:var(--ink)">${esc(me.email || me.displayName || 'you')}</b> · <a href="#" id="so">Sign out</a>
+        ${existing ? ` · <a href="${esc(dashUrl(b.slug))}">Open dashboard →</a>` : ''}</div>
+      <div class="bgrid"><form id="bf" autocomplete="off">
+        <fieldset><legend>Your brand</legend>
+          <label class="f" for="name">Barber / shop name</label><input type="text" id="name" maxlength="60" value="${esc(b.name)}" placeholder="e.g. Sweet The Barber" required>
+          <label class="f" for="slug">Your survey link</label>
+          <div class="slugrow"><span>${esc(FB.BASE.replace(/^https?:\/\//, ''))}s/?b=</span><input type="text" id="slug" maxlength="32" value="${esc(b.slug)}" ${existing ? 'disabled' : ''} placeholder="yourname"></div>
+          <div class="note" id="slugNote">${existing ? 'Link is locked so printed QR codes keep working.' : 'Lowercase letters, numbers and dashes.'}</div>
+          <label class="f">Logo</label>
+          <label class="drop" id="drop"><img id="logoImg" src="${esc(b.logo || '')}" alt="" ${b.logo ? '' : 'hidden'}><span><b>Upload your logo</b><br><span class="note">PNG with a transparent background looks best</span></span>
+            <input type="file" id="logo" accept="image/*" hidden></label>
+          ${b.logo ? '<div class="note"><a href="#" id="rmLogo">Remove logo</a></div>' : ''}
+          <div class="two"><div><label class="f" for="handle">Instagram</label><input type="text" id="handle" value="${esc(b.handle)}" placeholder="@yourhandle"></div>
+            <div><label class="f" for="city">City</label><input type="text" id="city" value="${esc(b.city)}" placeholder="Montréal"></div></div>
+          <label class="f" for="tagline">Tagline (shows on the welcome screen)</label><input type="text" id="tagline" maxlength="90" value="${esc(b.tagline)}" placeholder="Peace of mind, one cut at a time.">
+          <label class="f" for="verse">Closing line (thank-you screen, optional)</label><input type="text" id="verse" maxlength="120" value="${esc(b.verse)}" placeholder="A quote, verse or motto">
+        </fieldset>
+        <fieldset><legend>Vibe</legend>
+          <div class="vibes" id="vibes">${vibeBtns}</div>
+          <div class="colors">
+            <label>Background <input type="color" data-c="bg" value="${b.colors.bg}"></label>
+            <label>Cards <input type="color" data-c="card" value="${b.colors.card}"></label>
+            <label>Accent <input type="color" data-c="accent" value="${b.colors.accent}"></label>
+            <label>Text <input type="color" data-c="ink" value="${b.colors.ink}"></label>
+            <label>Soft text <input type="color" data-c="mute" value="${b.colors.mute}"></label>
+            <label>Glow <input type="color" data-c="glow" value="${b.colors.glow}"></label>
+          </div>
+          <label class="f" for="font">Heading font</label>
+          <select id="font">${Object.entries(FONTS).map(([k, f]) => `<option value="${k}"${(b.font || 'bricolage') === k ? ' selected' : ''}>${f.label}</option>`).join('')}</select>
+        </fieldset>
+        <fieldset><legend>Where answers go</legend>
+          <label class="f" for="email">Email a copy of every response to</label><input type="email" id="email" value="${esc(b.email)}" placeholder="you@email.com">
+          <div class="note">The first time, FormSubmit sends this inbox one “Activate” email. Click it once and every response arrives after that. Everything is also saved to your live dashboard.</div>
+          <label class="f" for="booking">Booking link (button on the thank-you screen)</label><input type="url" id="booking" value="${esc(b.booking)}" placeholder="https://booksy.com/… or https://ig.me/m/yourhandle">
+          <label class="f" for="team">Also let these emails see the dashboard (comma separated)</label><input type="text" id="team" value="${esc((b.team || []).join(', '))}" placeholder="partner@email.com">
+        </fieldset>
+        <fieldset><legend>Questions</legend>
+          <div class="note" style="margin-top:0">Every survey asks: service · <b>did you receive a quality experience?</b> · cut rating · cleanliness, timing, vibe, value · recommend 0–10 · book again · how they found you · what they want added · area of improvement · shoutout.</div>
+          <label class="f" for="services">Your services (one per line)</label><textarea id="services">${esc(b.services.join('\n'))}</textarea>
+          <label class="f" for="wants">“What would you love to see added?” options (one per line)</label><textarea id="wants">${esc(b.wants.join('\n'))}</textarea>
+          <label class="toggle"><input type="checkbox" id="bilingual"${b.bilingual !== false ? ' checked' : ''}> English + French toggle for clients</label>
+        </fieldset>
+        <button class="btn" id="save" style="width:100%;height:54px;font-size:17px">${existing ? 'Save changes' : 'Create my survey + QR'}</button>
+        <div class="err" id="err"></div>
+        <div id="out"></div>
+      </form>
+      <div class="sticky"><div class="phone"><iframe id="pv" title="Live preview"></iframe></div>
+        <div class="stepper" id="stepper">${['Welcome', 'Service', 'Quality', 'Rating', 'Areas', 'NPS', 'Again', 'Found', 'Wants', 'Improve', 'Last', 'Thanks'].map((l, k) => `<button type="button" data-st="${k}" class="${k === previewStep ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+      </div>`;
+
+    frame = document.getElementById('pv');
+    frameReady = false;
+    frame.src = 's/?preview=1&b=' + encodeURIComponent(b.slug || 'preview');
+    const f = document.getElementById('bf');
+    document.getElementById('so').onclick = (e) => { e.preventDefault(); auth.signOut(); };
+    f.addEventListener('input', (e) => {
+      const el = e.target;
+      if (el.dataset.c) { b.colors[el.dataset.c] = el.value; }
+      if (el.id === 'name' && !existing && !f.slug.dataset.touched) { f.slug.value = slugify(el.value); checkSlug(); }
+      if (el.id === 'slug') { f.slug.dataset.touched = 1; checkSlug(); }
+      read(); push();
+    });
+    f.addEventListener('change', () => { read(); push(); });
+    document.getElementById('vibes').onclick = (e) => {
+      const v = e.target.closest('[data-vibe]'); if (!v) return;
+      b.vibe = v.dataset.vibe; b.colors = { ...VIBES[b.vibe] }; b.font = VIBES[b.vibe].font;
+      read(); form();
+    };
+    document.getElementById('stepper').onclick = (e) => {
+      const s = e.target.dataset.st; if (s == null) return;
+      previewStep = +s; document.querySelectorAll('#stepper button').forEach(x => x.classList.toggle('on', x.dataset.st === s)); push();
+    };
+    const drop = document.getElementById('drop'), file = document.getElementById('logo');
+    file.onchange = () => file.files[0] && takeLogo(file.files[0]);
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); e.dataTransfer.files[0] && takeLogo(e.dataTransfer.files[0]); });
+    const rm = document.getElementById('rmLogo'); if (rm) rm.onclick = (e) => { e.preventDefault(); b.logo = ''; read(); form(); };
+    f.onsubmit = (e) => { e.preventDefault(); save(); };
+    if (!existing && b.slug) checkSlug();
+    FB.loadFont(b.font);
+  }
+
+  function read() {
+    const g = (id) => document.getElementById(id);
+    if (!g('name')) return;
+    b.name = g('name').value.trim();
+    if (!existing) b.slug = slugify(g('slug').value);
+    b.handle = g('handle').value.trim().replace(/^@/, '');
+    b.city = g('city').value.trim(); b.tagline = g('tagline').value.trim(); b.verse = g('verse').value.trim();
+    b.font = g('font').value; b.email = g('email').value.trim(); b.booking = g('booking').value.trim();
+    b.team = g('team').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean).slice(0, 10);
+    b.services = g('services').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 16);
+    b.wants = g('wants').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 16);
+    b.bilingual = g('bilingual').checked;
+  }
+  function push() {
+    if (!frame || !frameReady) return;
+    frame.contentWindow.postMessage({ type: 'fadeback-preview', barber: JSON.parse(JSON.stringify(b)), step: previewStep }, location.origin);
+  }
+  window.addEventListener('message', (e) => { if (e.origin === location.origin && e.data && e.data.type === 'fadeback-ready') { frameReady = true; push(); } });
+
+  function checkSlug() {
+    clearTimeout(slugTimer);
+    const note = document.getElementById('slugNote'), s = slugify(document.getElementById('slug').value);
+    slugOk = false;
+    if (s.length < 3) { note.className = 'note bad'; note.textContent = 'At least 3 characters.'; return; }
+    note.className = 'note'; note.textContent = 'Checking…';
+    slugTimer = setTimeout(async () => {
+      const cur = await loadBarber(s);
+      const preset = cur && cur._preset && me.email === FB.ADMIN;
+      slugOk = !cur || preset;
+      note.className = 'note ' + (slugOk ? 'ok' : 'bad');
+      note.textContent = slugOk ? `✓ ${surveyUrl(s).replace(/^https?:\/\//, '')} is yours` : 'Taken, try another.';
+    }, 350);
+  }
+
+  // Shrink the logo in the browser so it fits inside the profile document.
+  function takeLogo(fileObj) {
+    const img = new Image();
+    img.onload = () => {
+      const max = 640, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      let url = c.toDataURL('image/png');
+      if (url.length > 600000) url = c.toDataURL('image/webp', .9);
+      b.logo = url; URL.revokeObjectURL(img.src); read(); form();
+    };
+    img.src = URL.createObjectURL(fileObj);
+  }
+
+  async function save() {
+    read();
+    const err = document.getElementById('err'); err.textContent = '';
+    if (!b.name) { err.textContent = 'Add your name first.'; return; }
+    if (!existing && (!slugOk || b.slug.length < 3)) { err.textContent = 'Pick a free survey link.'; return; }
+    const btn = document.getElementById('save'); btn.disabled = true; btn.textContent = 'Saving…';
+    const data = {
+      name: b.name, handle: b.handle, city: b.city, tagline: b.tagline, verse: b.verse, logo: b.logo || '',
+      vibe: b.vibe, colors: b.colors, font: b.font, email: b.email, booking: b.booking, bookingLabel: b.bookingLabel || '',
+      team: b.team, services: b.services, wants: b.wants, bilingual: b.bilingual, lang: b.lang || 'en',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    try {
+      const ref = db.collection('barbers').doc(b.slug);
+      if (existing) await ref.update(data);
+      else await ref.set({ ...data, ownerUid: me.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      existing = true;
+      history.replaceState(null, '', '?edit=' + encodeURIComponent(b.slug) + '#build');
+      form();
+      done();
+    } catch (x) {
+      console.error(x); btn.disabled = false; btn.textContent = 'Try again';
+      err.textContent = /permission/i.test(x.message) ? 'That link belongs to someone else. Pick another.' : x.message;
+    }
+  }
+
+  // ---------- QR ----------
+  function qrCanvas(text, size, dark, light) {
+    const q = qrcode(0, 'M'); q.addData(text); q.make();
+    const n = q.getModuleCount(), c = document.createElement('canvas'), cell = Math.floor(size / (n + 2));
+    c.width = c.height = cell * (n + 2);
+    const x = c.getContext('2d'); x.fillStyle = light; x.fillRect(0, 0, c.width, c.height); x.fillStyle = dark;
+    for (let r = 0; r < n; r++) for (let col = 0; col < n; col++) if (q.isDark(r, col)) x.fillRect((col + 1) * cell, (r + 1) * cell, cell, cell);
+    return c;
+  }
+  function loadImg(src) { return new Promise((res) => { if (!src) return res(null); const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => res(null); i.src = src; }); }
+
+  // Printable card: logo, headline, QR, link. 1200x1500 PNG.
+  async function card() {
+    const c = { ...VIBES.sweet, ...(VIBES[b.vibe] || {}), ...b.colors };
+    const W = 1200, H = 1500, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d');
+    await document.fonts.ready;
+    const fam = FONTS[b.font || 'bricolage'].display;
+    await document.fonts.load('800 80px ' + fam).catch(() => {});
+    x.fillStyle = c.bg; x.fillRect(0, 0, W, H);
+    const g = x.createRadialGradient(W * .85, 120, 10, W * .85, 120, 900); g.addColorStop(0, c.glow + '66'); g.addColorStop(1, c.glow + '00');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    const logo = await loadImg(b.logo);
+    // Centre the whole stack: logo (or name) + headline + QR + handle pill = head + 990px.
+    const lh = logo ? Math.min(380, 760 * logo.height / logo.width) : 0;
+    let y = Math.max(70, (H - ((logo ? lh + 50 : 150) + 990)) / 2);
+    if (logo) { const w2 = lh * logo.width / logo.height; x.drawImage(logo, (W - w2) / 2, y, w2, lh); y += lh + 50; }
+    else { x.fillStyle = c.ink; x.font = `800 90px ${fam}`; x.textAlign = 'center'; x.fillText(b.name, W / 2, y + 90); y += 150; }
+    x.textAlign = 'center'; x.fillStyle = c.ink; x.font = `800 92px ${fam}`; x.fillText('How was your cut?', W / 2, y + 70);
+    x.fillStyle = c.mute; x.font = '500 40px "DM Sans", sans-serif'; x.fillText(b.bilingual !== false ? 'Scan · 60 sec · Comment était ta coupe?' : 'Scan & tell me · 60 seconds', W / 2, y + 135);
+    const qs = 560, qx = (W - qs - 60) / 2, qy = y + 185;
+    x.fillStyle = '#ffffff'; roundRect(x, qx, qy, qs + 60, qs + 60, 44); x.fill();
+    x.drawImage(qrCanvas(surveyUrl(b.slug), qs, '#111111', '#ffffff'), qx + 30, qy + 30, qs, qs);
+    x.fillStyle = c.accent; roundRect(x, W / 2 - 330, qy + qs + 100, 660, 84, 42); x.fill();
+    x.fillStyle = c.accentInk; x.font = `800 40px ${fam}`; x.fillText(b.handle ? '@' + b.handle : b.name, W / 2, qy + qs + 156);
+    return cv;
+  }
+  function roundRect(x, l, t, w, h, r) { x.beginPath(); x.moveTo(l + r, t); x.arcTo(l + w, t, l + w, t + h, r); x.arcTo(l + w, t + h, l, t + h, r); x.arcTo(l, t + h, l, t, r); x.arcTo(l, t, l + w, t, r); x.closePath(); }
+  function download(canvas, name) { const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = name; a.click(); }
+
+  function done() {
+    const url = surveyUrl(b.slug);
+    const out = document.getElementById('out');
+    out.innerHTML = `<div class="done"><h3>Your survey is live 🎉</h3><div class="note">Print the card, tape it to your mirror, and watch the dashboard.</div>
+      <div class="qrbox"><div id="qr"></div><div><div class="linkbox">${esc(url)}</div>
+        <div class="row"><button type="button" class="btn" id="dlCard">Download QR card</button><button type="button" class="btn ghost" id="dlQr">QR only</button>
+        <button type="button" class="btn ghost" id="cp">Copy link</button><a class="btn ghost" href="${esc(dashUrl(b.slug))}">Dashboard →</a></div></div></div></div>`;
+    document.getElementById('qr').appendChild(qrCanvas(url, 340, '#111111', '#ffffff'));
+    document.getElementById('dlQr').onclick = () => download(qrCanvas(url, 1200, '#000000', '#ffffff'), b.slug + '-qr.png');
+    document.getElementById('dlCard').onclick = async () => download(await card(), b.slug + '-qr-card.png');
+    document.getElementById('cp').onclick = (e) => navigator.clipboard.writeText(url).then(() => { e.target.textContent = 'Copied ✓'; });
+    out.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  auth.onAuthStateChanged(async (u) => {
+    me = u;
+    if (!u) return signin();
+    await start();
+    if (existing) done();
+  });
+})();
+</script>
+</body>
+</html>

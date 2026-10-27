@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#140c12">
+<title>Fadeback Dashboard</title>
+<link rel="icon" href="../icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #140c12; --card: #1f151c; --ink: #fff3f8; --mute: #c9a9b9; --line: #3a2833;
+    --accent: #ff9ad0; --accentInk: #1a0a13; --glow: #ff5fb4;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --body: 'DM Sans', system-ui, sans-serif;
+    --good: #3ecf8e; --warn: #f5b942; --bad: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); min-height: 100vh; }
+  body::before { content: ''; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(60vw 40vw at 100% 0, color-mix(in srgb, var(--glow) 16%, transparent), transparent 70%); }
+  .wrap { position: relative; max-width: 1180px; margin: 0 auto; padding: 18px 16px 60px; }
+  a { color: var(--accent); }
+  .top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  .top img { height: 54px; width: auto; max-width: 140px; object-fit: contain; }
+  .top h1 { font: 800 clamp(22px, 4vw, 30px)/1.05 var(--display); margin: 0; letter-spacing: -.02em; }
+  .top .who { color: var(--mute); font-size: 13px; }
+  .live { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--good); }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 var(--good); animation: ping 1.8s infinite; }
+  @keyframes ping { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .grow { flex: 1; }
+  .btn { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 99px; background: var(--accent); color: var(--accentInk); font-weight: 700; font-size: 14px; white-space: nowrap; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+  .btn:active { transform: scale(.97); }
+
+  .filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .seg { display: inline-flex; background: var(--card); border: 1px solid var(--line); border-radius: 99px; padding: 3px; }
+  .seg button { all: unset; cursor: pointer; padding: 7px 13px; border-radius: 99px; font-size: 13px; font-weight: 700; color: var(--mute); }
+  .seg button.on { background: var(--ink); color: var(--bg); }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+  .kpi .l { font-size: 12px; color: var(--mute); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .kpi .v { font: 800 36px/1.1 var(--display); margin-top: 6px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .kpi .s { font-size: 13px; color: var(--mute); }
+
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; grid-column: span 6; min-width: 0; }
+  .card.w4 { grid-column: span 4; } .card.w8 { grid-column: span 8; } .card.w12 { grid-column: span 12; }
+  @media (max-width: 900px) { .card, .card.w4, .card.w8 { grid-column: span 12; } }
+  .card h3 { font: 800 17px/1.2 var(--display); margin: 0 0 4px; }
+  .card .hint { color: var(--mute); font-size: 13px; margin: 0 0 14px; }
+
+  .hbar { display: grid; grid-template-columns: minmax(90px, 38%) 1fr auto; align-items: center; gap: 10px; padding: 5px 0; }
+  .hbar .n { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hbar .t { height: 14px; background: color-mix(in srgb, var(--ink) 7%, transparent); border-radius: 4px; overflow: hidden; }
+  .hbar .t i { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+  .hbar .c { font-size: 13px; color: var(--mute); font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }
+  .hbar .c b { color: var(--ink); }
+
+  .cols { display: flex; align-items: flex-end; gap: 2px; height: 150px; border-bottom: 1px solid var(--line); }
+  .cols .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; min-width: 0; }
+  .cols .col i { display: block; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 0; transition: height .5s; }
+  .cols .col:hover i { filter: brightness(1.2); }
+  .xl { display: flex; gap: 2px; font-size: 11px; color: var(--mute); margin-top: 6px; }
+  .xl span { flex: 1; text-align: center; min-width: 0; }
+
+  .feed { display: grid; gap: 10px; max-height: 620px; overflow: auto; padding-right: 4px; }
+  .fi { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: color-mix(in srgb, var(--bg) 40%, var(--card)); }
+  .fi.new { animation: flash 2.4s ease-out; }
+  @keyframes flash { from { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); } }
+  .fi .meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--mute); margin-bottom: 6px; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); font-size: 12px; color: var(--ink); }
+  .fi p { margin: 4px 0 0; white-space: pre-wrap; }
+  .fi p b { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
+  .rm { all: unset; cursor: pointer; font-size: 12px; color: var(--mute); opacity: .6; }
+  .rm:hover { opacity: 1; color: var(--bad); }
+  .empty { color: var(--mute); padding: 30px 0; text-align: center; }
+
+  .gate { max-width: 420px; margin: 12vh auto 0; text-align: center; }
+  .gate h1 { font: 800 34px/1.05 var(--display); margin: 0 0 8px; }
+  .gate p { color: var(--mute); }
+  .gate form { display: grid; gap: 10px; margin-top: 18px; text-align: left; }
+  .gate input { font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; outline: none; }
+  .gate input:focus { border-color: var(--accent); }
+  .gate .or { color: var(--mute); font-size: 13px; margin: 14px 0 4px; }
+  .err { color: var(--bad); min-height: 1.2em; font-size: 14px; }
+  .list { display: grid; gap: 10px; margin-top: 18px; }
+  .list a { display: flex; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); text-decoration: none; }
+  .list img { width: 54px; height: 40px; object-fit: contain; }
+  #tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; font-weight: 700; padding: 6px 9px; border-radius: 8px; opacity: 0; transition: opacity .1s; white-space: nowrap; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 99px; font-weight: 700; font-size: 14px; z-index: 20; }
+  table.sr { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="empty">Loading…</div></div>
+<div id="tip"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../config.js"></script>
+<script src="../core.js"></script>
+<script>
+(function () {
+  const { db, auth, esc, applyTheme, loadBarber, T, SCORE_KEYS, SOURCES } = FB;
+  const $app = document.getElementById('app');
+  const qs = new URLSearchParams(location.search);
+  const slug = (qs.get('b') || '').toLowerCase();
+  let b = null, rows = [], range = 30, seen = new Set(), first = true, unsub = null;
+
+  const pct = (a, n) => n ? Math.round(a / n * 100) : 0;
+  const avg = (xs) => { const v = xs.filter(x => typeof x === 'number'); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+  const fmt1 = (x) => x == null ? '–' : x.toFixed(1);
+  const when = (d) => d ? d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'just now';
+  function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+
+  // ---------- sign in ----------
+  function gate(msg) {
+    document.title = 'Sign in · Fadeback';
+    $app.innerHTML = `<div class="gate">
+      ${b && b.logo ? `<img src="${esc(b.logo)}" alt="" style="width:220px;max-width:70%;margin-bottom:10px">` : ''}
+      <h1>${b ? esc(b.name) : 'Your'} dashboard</h1>
+      <p>Sign in with the account that manages this survey to see answers live.</p>
+      <button class="btn" id="g" style="width:100%;justify-content:center;height:50px">Continue with Google</button>
+      <div class="or">or with email</div>
+      <form id="ef"><input type="email" id="em" placeholder="Email" autocomplete="email" required>
+        <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required minlength="6">
+        <button class="btn ghost" style="justify-content:center;height:46px">Sign in / create account</button></form>
+      <div class="err" id="err">${esc(msg || '')}</div></div>`;
+    document.getElementById('g').onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => err(e));
+    document.getElementById('ef').onsubmit = async (e) => {
+      e.preventDefault();
+      const em = document.getElementById('em').value.trim(), pw = document.getElementById('pw').value;
+      try { await auth.signInWithEmailAndPassword(em, pw); }
+      catch (x) {
+        if (/user-not-found|invalid-credential|invalid-login/.test(x.code)) {
+          try { await auth.createUserWithEmailAndPassword(em, pw); } catch (y) { err(y); }
+        } else err(x);
+      }
+    };
+  }
+  function err(e) { const el = document.getElementById('err'); if (el) el.textContent = (e && e.message || String(e)).replace('Firebase: ', ''); }
+
+  // ---------- no slug: list my surveys ----------
+  async function myList(u) {
+    const isAdmin = u.email === FB.ADMIN;
+    const q = isAdmin ? db.collection('barbers') : db.collection('barbers').where('ownerUid', '==', u.uid);
+    const snap = await q.get();
+    const items = snap.docs.map(d => ({ slug: d.id, ...d.data() }));
+    $app.innerHTML = `<div class="gate" style="text-align:left"><h1>Your surveys</h1><p>${esc(u.email || '')} · <a href="#" id="so">Sign out</a></p>
+      <div class="list">${items.map(x => `<a href="?b=${esc(x.slug)}">${x.logo ? `<img src="${esc(x.logo)}" alt="">` : ''}<div><b>${esc(x.name || x.slug)}</b><br><small>${esc(x.slug)}</small></div></a>`).join('') || '<p>No surveys yet.</p>'}
+      ${isAdmin ? '<a href="?b=sweetthebarber"><b>sweetthebarber</b> (starter)</a>' : ''}</div>
+      <p style="margin-top:18px"><a class="btn" href="../fadeback.html#build">+ Create a survey</a></p></div>`;
+    document.getElementById('so').onclick = (e) => { e.preventDefault(); auth.signOut(); };
+  }
+
+  // ---------- live data ----------
+  function listen() {
+    if (unsub) unsub();
+    unsub = db.collection('barbers').doc(slug).collection('responses').orderBy('createdAt', 'desc').limit(5000)
+      .onSnapshot({ includeMetadataChanges: false }, (snap) => {
+        rows = snap.docs.map(d => { const x = d.data(); return { id: d.id, ...x, at: x.createdAt ? x.createdAt.toDate() : new Date() }; });
+        render();
+        first = false;
+      }, (e) => {
+        console.error(e);
+        $app.innerHTML = `<div class="gate"><h1>No access</h1><p>${esc(auth.currentUser.email || 'This account')} can't read <b>${esc(slug)}</b>. Ask the owner to add you to the team, or sign in with the right account.</p><p><a href="#" id="so">Sign out</a></p></div>`;
+        document.getElementById('so').onclick = (ev) => { ev.preventDefault(); auth.signOut(); };
+      });
+  }
+
+  function inRange(r) { return range === 0 || r.at >= new Date(Date.now() - range * 864e5); }
+
+  function countBy(list, key, order) {
+    const m = new Map((order || []).map(k => [k, 0]));
+    list.forEach(r => { const vs = Array.isArray(r[key]) ? r[key] : [r[key]]; vs.forEach(v => { if (v !== '' && v != null) m.set(v, (m.get(v) || 0) + 1); }); });
+    return [...m.entries()];
+  }
+  function hbars(entries, total, opts = {}) {
+    const sorted = opts.keepOrder ? entries : entries.slice().sort((a, b) => b[1] - a[1]);
+    const max = Math.max(1, ...sorted.map(e => e[1]));
+    if (!total) return '<div class="empty">No answers yet</div>';
+    return sorted.map(([k, n]) => `<div class="hbar" data-tip="${esc(opts.label ? opts.label(k) : k)}: ${n} (${pct(n, total)}%)">
+      <span class="n">${esc(opts.label ? opts.label(k) : k)}</span><span class="t"><i style="width:${n / max * 100}%"></i></span>
+      <span class="c"><b>${n}</b> · ${pct(n, total)}%</span></div>`).join('');
+  }
+  function avgBars(list) {
+    return SCORE_KEYS.map(k => {
+      const a = avg(list.map(r => r.scores && r.scores[k]));
+      return `<div class="hbar" data-tip="${T.en.scores[k]}: ${fmt1(a)} / 5"><span class="n">${T.en.scores[k]}</span><span class="t"><i style="width:${a ? a / 5 * 100 : 0}%"></i></span><span class="c"><b>${fmt1(a)}</b> / 5</span></div>`;
+    }).join('');
+  }
+
+  function render() {
+    const list = rows.filter(inRange);
+    const n = list.length;
+    const qYes = list.filter(r => r.quality === 'yes').length;
+    const rating = avg(list.map(r => r.rating));
+    const npsList = list.filter(r => typeof r.nps === 'number');
+    const prom = npsList.filter(r => r.nps >= 9).length, det = npsList.filter(r => r.nps <= 6).length;
+    const nps = npsList.length ? Math.round((prom - det) / npsList.length * 100) : null;
+    const again = list.filter(r => r.again === 'yes').length;
+    const week = rows.filter(r => r.at >= new Date(Date.now() - 7 * 864e5)).length;
+
+    // daily counts for the trend (last 30 days, or the range if shorter)
+    const days = range === 7 ? 7 : 30;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const buckets = Array.from({ length: days }, (_, d) => { const s = new Date(today - (days - 1 - d) * 864e5); return { s, n: 0 }; });
+    rows.forEach(r => { const idx = Math.floor((r.at - buckets[0].s) / 864e5); if (idx >= 0 && idx < days) buckets[idx].n++; });
+    const bmax = Math.max(1, ...buckets.map(x => x.n));
+    const npsHist = Array.from({ length: 11 }, (_, k) => npsList.filter(r => r.nps === k).length);
+    const hmax = Math.max(1, ...npsHist);
+    const notes = list.filter(r => r.improve || r.shoutout || r.wantOther);
+
+    const scroll = document.querySelector('.feed')?.scrollTop || 0;
+    $app.innerHTML = `
+      <div class="top">
+        ${b.logo ? `<img src="${esc(b.logo)}" alt="">` : ''}
+        <div><h1>${esc(b.name || slug)}</h1><div class="who"><span class="live"><i></i>Live</span> · ${esc(auth.currentUser.email || '')}</div></div>
+        <span class="grow"></span>
+        <a class="btn ghost" href="${esc(FB.surveyUrl(slug))}" target="_blank" rel="noopener">Open survey</a>
+        <a class="btn ghost" href="../fadeback.html?edit=${encodeURIComponent(slug)}#build">Edit · QR</a>
+        <button class="btn ghost" id="copy">Copy summary</button>
+        <button class="btn" id="csv">Export CSV</button>
+      </div>
+      <div class="filters">
+        <div class="seg" id="range">${[[7, '7 days'], [30, '30 days'], [90, '90 days'], [0, 'All time']].map(([v, l]) => `<button data-r="${v}" class="${range === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+        <span class="who" style="color:var(--mute);font-size:13px">${rows.length} total · ${week} this week</span>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Responses</div><div class="v">${n}</div><div class="s">in this range</div></div>
+        <div class="kpi"><div class="l">Quality experience</div><div class="v">${n ? pct(qYes, n) + '%' : '–'}</div><div class="s">said “Yes, 100%”</div></div>
+        <div class="kpi"><div class="l">Cut rating</div><div class="v">${fmt1(rating)}<small style="font-size:16px;color:var(--mute)"> / 5</small></div><div class="s">average</div></div>
+        <div class="kpi"><div class="l">Recommend score</div><div class="v">${nps == null ? '–' : (nps > 0 ? '+' : '') + nps}</div><div class="s">NPS · −100 to +100</div></div>
+        <div class="kpi"><div class="l">Would book again</div><div class="v">${n ? pct(again, n) + '%' : '–'}</div><div class="s">said yes</div></div>
+      </div>
+      <div class="grid">
+        <div class="card w8"><h3>Responses per day</h3><p class="hint">Last ${days} days</p>
+          <div class="cols">${buckets.map(x => `<div class="col" data-tip="${x.s.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}: ${x.n}"><i style="height:${x.n / bmax * 100}%"></i></div>`).join('')}</div>
+          <div class="xl">${buckets.map((x, k) => `<span>${k % Math.ceil(days / 6) === 0 ? x.s.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : ''}</span>`).join('')}</div></div>
+        <div class="card w4"><h3>Did they get a quality experience?</h3><p class="hint">The headline question</p>
+          ${hbars(countBy(list, 'quality', ['yes', 'mostly', 'no']), n, { keepOrder: true, label: k => T.en.quality[k] || k })}</div>
+        <div class="card"><h3>Ratings by area</h3><p class="hint">Average out of 5. Lowest bar = where to focus</p>${n ? avgBars(list) : '<div class="empty">No answers yet</div>'}</div>
+        <div class="card"><h3>Recommend (0–10)</h3><p class="hint">${prom} promoters · ${npsList.length - prom - det} passive · ${det} detractors</p>
+          <div class="cols" style="height:120px">${npsHist.map((c, k) => `<div class="col" data-tip="${k}: ${c}"><i style="height:${c / hmax * 100}%"></i></div>`).join('')}</div>
+          <div class="xl">${npsHist.map((_, k) => `<span>${k}</span>`).join('')}</div></div>
+        <div class="card"><h3>What clients want to see added</h3><p class="hint">Multi-select, % of responses</p>${hbars(countBy(list, 'wants'), n)}</div>
+        <div class="card"><h3>Services</h3><p class="hint">What they got</p>${hbars(countBy(list, 'service'), n)}</div>
+        <div class="card w4"><h3>How they found you</h3><p class="hint">Where to put your energy</p>${hbars(countBy(list, 'source', SOURCES), n)}</div>
+        <div class="card w4"><h3>Book again?</h3><p class="hint">Retention signal</p>${hbars(countBy(list, 'again', ['yes', 'maybe', 'no']), n, { keepOrder: true, label: k => T.en.again[k] || k })}</div>
+        <div class="card w4"><h3>Language</h3><p class="hint">Survey taken in</p>${hbars(countBy(list, 'lang', ['en', 'fr']), n, { keepOrder: true, label: k => k === 'fr' ? 'Français' : 'English' })}</div>
+        <div class="card w12"><h3>Areas of improvement & shoutouts</h3><p class="hint">${notes.length} written answers · newest first</p>
+          <div class="feed">${notes.map(r => `<div class="fi${!first && !seen.has(r.id) ? ' new' : ''}">
+            <div class="meta"><span>${when(r.at)}</span>${r.name ? `<span class="pill">${esc(r.name)}</span>` : ''}${r.contact ? `<span class="pill">${esc(r.contact)}</span>` : ''}
+              <span class="pill">${'★'.repeat(r.rating || 0)}</span><span class="pill">${esc(T.en.quality[r.quality] || '')}</span>${r.service ? `<span class="pill">${esc(r.service)}</span>` : ''}${r.feature ? '<span class="pill">✓ OK to feature</span>' : ''}<span class="grow"></span><button class="rm" data-rm="${r.id}" title="Delete this response">Remove</button></div>
+            ${r.improve ? `<p><b>Improve</b>${esc(r.improve)}</p>` : ''}
+            ${r.wantOther ? `<p><b>Wants</b>${esc(r.wantOther)}</p>` : ''}
+            ${r.shoutout ? `<p><b>Shoutout</b>${esc(r.shoutout)}</p>` : ''}</div>`).join('') || '<div class="empty">Written feedback will show up here the second it lands.</div>'}</div></div>
+      </div>`;
+    const f = document.querySelector('.feed'); if (f) f.scrollTop = scroll;
+    rows.forEach(r => seen.add(r.id));
+    document.getElementById('range').onclick = (e) => { const r = e.target.dataset.r; if (r != null) { range = +r; render(); } };
+    document.getElementById('csv').onclick = csv;
+    document.querySelector('.feed').onclick = (e) => {
+      const id = e.target.dataset.rm;
+      if (!id) return;
+      if (e.target.dataset.sure) { db.collection('barbers').doc(slug).collection('responses').doc(id).delete().then(() => toast('Removed')); return; }
+      e.target.dataset.sure = 1; e.target.textContent = 'Tap again to delete'; e.target.style.opacity = 1;
+    };
+    document.getElementById('copy').onclick = () => {
+      const top = (k) => countBy(list, k).sort((a, c) => c[1] - a[1]).slice(0, 3).map(([x, c]) => `${x} (${c})`).join(', ');
+      const txt = `${b.name} · ${range ? 'last ' + range + ' days' : 'all time'} · ${n} responses
+Quality experience yes: ${pct(qYes, n)}% · Cut ${fmt1(rating)}/5 · NPS ${nps ?? '–'} · Book again ${pct(again, n)}%
+Areas: ${SCORE_KEYS.map(k => T.en.scores[k] + ' ' + fmt1(avg(list.map(r => r.scores && r.scores[k])))).join(' · ')}
+Top wants: ${top('wants')}
+Top sources: ${top('source')}
+Improvements:
+${list.filter(r => r.improve).slice(0, 15).map(r => '- ' + r.improve.replace(/\s+/g, ' ')).join('\n')}`;
+      navigator.clipboard.writeText(txt).then(() => toast('Summary copied'));
+    };
+  }
+
+  function csv() {
+    const cols = ['date', 'lang', 'service', 'quality', 'rating', 'clean', 'time', 'vibe', 'value', 'nps', 'again', 'source', 'wants', 'wantOther', 'improve', 'shoutout', 'name', 'contact', 'feature'];
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const lines = [cols.join(',')].concat(rows.map(r => [r.at.toISOString(), r.lang, r.service, r.quality, r.rating,
+      ...SCORE_KEYS.map(k => r.scores && r.scores[k]), r.nps, r.again, r.source, (r.wants || []).join('; '), r.wantOther, r.improve, r.shoutout, r.name, r.contact, r.feature ? 'yes' : 'no'].map(q).join(',')));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' }));
+    a.download = `${slug}-feedback-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+  }
+
+  // hover tooltips for every bar/column
+  const tip = document.getElementById('tip');
+  document.addEventListener('mousemove', (e) => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) { tip.style.opacity = 0; return; }
+    tip.textContent = el.dataset.tip; tip.style.opacity = 1;
+    tip.style.left = Math.min(innerWidth - tip.offsetWidth - 8, e.clientX + 12) + 'px'; tip.style.top = (e.clientY - 34) + 'px';
+  });
+
+  (async function () {
+    if (slug) { b = await loadBarber(slug); if (b) { applyTheme(b); document.title = b.name + ' · Dashboard'; } }
+    auth.onAuthStateChanged((u) => {
+      if (unsub) { unsub(); unsub = null; }
+      if (!u) return gate();
+      if (!slug) return myList(u);
+      if (!b) { $app.innerHTML = '<div class="gate"><h1>Survey not found</h1><p><a href="./">Your surveys</a></p></div>'; return; }
+      first = true; seen = new Set();
+      listen();
+    });
+  })();
+})();
+</script>
+</body>
+</html>
